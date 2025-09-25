@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <!-- Brand -->
-                <router-link to="/home" class="navbar-brand ms-1 me-3">{{ title }}</router-link>
+                <router-link to="/dashboard" class="navbar-brand ms-1 me-3">{{ title }}</router-link>
             </div>
 
             <div class="collapse navbar-collapse">
@@ -27,7 +27,7 @@
 
                 <!-- User dropdown (opens only on click) -->
                 <div class="dropdown user-menu-root" ref="userMenuRoot">
-                    <button class="btn btn-link nav-link " type="button" @click.stop="toggleUserMenu" aria-haspopup="true" :aria-expanded="userMenuOpen">
+                    <button class="btn-NavBar btn-link nav-link " type="button" @click.stop="toggleUserMenu" aria-haspopup="true" :aria-expanded="userMenuOpen">
                         <img src="/iconos/user.svg" alt="Usuario" width="28" height="28" class="iconColor" />
                     </button>
                     <ul v-show="userMenuOpen" class="dropdown-menu dropdown-menu-end show user-dropdown" aria-labelledby="userDropdown">
@@ -108,16 +108,16 @@ export default {
 
             const r = this.$router
             if (r && typeof r.push === 'function') {
-                r.push('/');
+                r.push('/login');
             } else {
-                window.location.href = '/';
+                window.location.href = '/login';
             }
         }
     }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .search-container {
     position: relative;
     width: 300px;
@@ -132,22 +132,34 @@ export default {
     height: 16px;
     filter: invert(48%) sepia(0%) saturate(0%) hue-rotate(147deg) brightness(89%) contrast(93%);
 }
+
 .border-nav {
     border-bottom: 1px solid #f5f9fb;
 }
-.btn {
-    width: 40px;
-    height: 40px;
+
+.btn-NavBar {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  line-height: 1;
 }
+
+.navbar {
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
 .form-control:focus {
     border-color: #3c6cff;
     border-width: 2px;
     box-shadow: none;
     outline: 0;
 }
+
 .userIcon { 
     filter: invert(48%) sepia(0%) saturate(0%) hue-rotate(147deg) brightness(89%) contrast(93%);
 }
+
 .dropdown-toggle::after {
     display: none;
 }
@@ -176,7 +188,8 @@ export default {
 }
 
 .search-input {
-    width: 260px;
+  width: 260px;
+  max-width: 100%;
 }
 
 .search-icon {
@@ -187,6 +200,17 @@ export default {
     width: 16px;
     height: 16px;
     pointer-events: none;
+}
+
+.container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+input:focus, button:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 @media (max-width: 768px) {

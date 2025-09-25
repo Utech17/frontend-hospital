@@ -89,11 +89,10 @@
 
 <script>
 import Swal from 'sweetalert2';
-import authGuard from '@/mixins/authGuard';
+import api from '~/utils/simpleApi';
 
 export default {
     name: 'DataGridPatient',
-    mixins: [authGuard],
     data() {
         return {
             searchQuery: '',
@@ -108,7 +107,6 @@ export default {
                 identifier: '',
             },
             patients: [],
-            baseURL: 'https://backend-hospital-mediplus.onrender.com/api/patient',
         };
     },
     computed: {
@@ -139,276 +137,279 @@ export default {
         this.patients = [];
         this.loadPatients();
     },
-    // methods: {
-    //     async loadPatients() {
-    //         try {
-    //             const response = await axios.get(this.baseURL);
-    //             console.log('Respuesta API completa:', response);
+    methods: {
+        async loadPatients() {
+            try {
+                const response = await api.get('/api/patient');
+                console.log('Respuesta API completa:', response);
 
-    //             if (!response || !response.data) {
-    //                 console.warn('No se recibieron datos de la API');
-    //                 this.patients = [];
-    //                 return;
-    //             }
+                if (!response || !response.data) {
+                    console.warn('No se recibieron datos de la API');
+                    this.patients = [];
+                    return;
+                }
 
-    //             let rawData = response.data;
-    //             console.log('Datos sin procesar:', rawData);
+                let rawData = response.data;
+                console.log('Datos sin procesar:', rawData);
 
-    //             // Extraer el array de patients de la estructura correcta
-    //             let patientsArray = [];
-    //             if (rawData.data && rawData.data.patients && Array.isArray(rawData.data.patients)) {
-    //                 patientsArray = rawData.data.patients;
-    //             } else if (rawData.data && Array.isArray(rawData.data)) {
-    //                 patientsArray = rawData.data;
-    //             } else if (Array.isArray(rawData)) {
-    //                 patientsArray = rawData;
-    //             }
+                let patientsArray = [];
+                if (rawData.data && rawData.data.patients && Array.isArray(rawData.data.patients)) {
+                    patientsArray = rawData.data.patients;
+                } else if (rawData.data && Array.isArray(rawData.data)) {
+                    patientsArray = rawData.data;
+                } else if (Array.isArray(rawData)) {
+                    patientsArray = rawData;
+                }
 
-    //             // Agregar este log después de extraer patientsArray
-    //             console.log('Array de pacientes antes de procesar:', patientsArray);
+                // Agregar este log después de extraer patientsArray
+                console.log('Array de pacientes antes de procesar:', patientsArray);
 
-    //             // Procesar los datos
-    //             this.patients = patientsArray
-    //                 .filter(item => item && typeof item === 'object')
-    //                 .map(patient => ({
-    //                     id: patient._id || patient.id,
-    //                     firstName: patient.firstName || '',
-    //                     lastName: patient.lastName || '',
-    //                     birthDate: patient.birthDate || '',
-    //                     gender: patient.gender || '',
-    //                     identifier: patient.identifier || '',
-    //                     registrationDate: patient.registrationDate || ''
-    //                 }));
+                // Procesar los datos
+                this.patients = patientsArray
+                    .filter(item => item && typeof item === 'object')
+                    .map(patient => ({
+                        id: patient._id || patient.id,
+                        firstName: patient.firstName || '',
+                        lastName: patient.lastName || '',
+                        birthDate: patient.birthDate || '',
+                        gender: patient.gender || '',
+                        identifier: patient.identifier || '',
+                        registrationDate: patient.registrationDate || ''
+                    }));
 
-    //             console.log('Patients después de asignar:', this.patients);
+                console.log('Patients después de asignar:', this.patients);
 
-    //         } catch (error) {
-    //             console.error('Error al cargar pacientes:', error);
-    //             this.patients = [];
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: 'Error al cargar los pacientes'
-    //             });
-    //         }
-    //     },
+            } catch (error) {
+                console.error('Error al cargar pacientes:', error);
+                this.patients = [];
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los pacientes'
+                });
+            }
+        },
 
-    //     async savePatient() {
-    //         let patientData = null;
+        async savePatient() {
+            let patientData = null;
 
-    //         try {
-    //             // Validar datos antes de enviar
-    //             if (!this.currentPatient.firstName || 
-    //                 !this.currentPatient.lastName || 
-    //                 !this.currentPatient.identifier ||
-    //                 !this.currentPatient.birthDate ||
-    //                 !this.currentPatient.gender) {
-    //                 Swal.fire({
-    //                     icon: 'warning',
-    //                     title: 'Campos requeridos',
-    //                     text: 'Por favor complete todos los campos obligatorios'
-    //                 });
-    //                 return;
-    //             }
+            try {
+                // Validar datos antes de enviar
+                if (!this.currentPatient.firstName || 
+                    !this.currentPatient.lastName || 
+                    !this.currentPatient.identifier ||
+                    !this.currentPatient.birthDate ||
+                    !this.currentPatient.gender) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Campos requeridos',
+                        text: 'Por favor complete todos los campos obligatorios'
+                    });
+                    return;
+                }
 
-    //             // Validar formato de cédula (solo números)
-    //             if (!/^\d+$/.test(this.currentPatient.identifier)) {
-    //                 Swal.fire({
-    //                     icon: 'warning',
-    //                     title: 'Formato inválido',
-    //                     text: 'La cédula debe contener solo números'
-    //                 });
-    //                 return;
-    //             }
+                // Validar formato de cédula (solo números)
+                if (!/^\d+$/.test(this.currentPatient.identifier)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Formato inválido',
+                        text: 'La cédula debe contener solo números'
+                    });
+                    return;
+                }
 
-    //             // Validar fecha de nacimiento
-    //             const birthDate = new Date(this.currentPatient.birthDate);
-    //             const today = new Date();
-    //             if (birthDate > today) {
-    //                 Swal.fire({
-    //                     icon: 'warning',
-    //                     title: 'Fecha inválida',
-    //                     text: 'La fecha de nacimiento no puede ser futura'
-    //                 });
-    //                 return;
-    //             }
+                // Validar fecha de nacimiento
+                const birthDate = new Date(this.currentPatient.birthDate);
+                const today = new Date();
+                if (birthDate > today) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Fecha inválida',
+                        text: 'La fecha de nacimiento no puede ser futura'
+                    });
+                    return;
+                }
 
-    //             // Modificar la estructura de los datos para que coincida con el backend
-    //             patientData = {
-    //                 nickname: this.currentPatient.firstName.trim(),
-    //                 firstName: this.currentPatient.firstName.trim(),
-    //                 lastName: this.currentPatient.lastName.trim(),
-    //                 birthDate: this.formatDate(this.currentPatient.birthDate),
-    //                 gender: this.currentPatient.gender.toLowerCase(),
-    //                 identifier: this.currentPatient.identifier.trim(),
-    //                 type: 'patient',
-    //                 status: true
-    //             };
+                // Modificar la estructura de los datos para que coincida con el backend
+                patientData = {
+                    nickname: this.currentPatient.firstName.trim(),
+                    firstName: this.currentPatient.firstName.trim(),
+                    lastName: this.currentPatient.lastName.trim(),
+                    birthDate: this.formatDate(this.currentPatient.birthDate),
+                    gender: this.currentPatient.gender.toLowerCase(),
+                    identifier: this.currentPatient.identifier.trim(),
+                    type: 'patient',
+                    status: true
+                };
 
-    //             console.log('Datos a enviar:', patientData);
+                console.log('Datos a enviar:', patientData);
 
-    //             let response;
-    //             if (this.isEditing) {
-    //                 response = await axios.put(
-    //                     `${this.baseURL}/${this.currentPatient.id}`, 
-    //                     patientData
-    //                 );
-    //             } else {
-    //                 response = await axios.post(
-    //                     this.baseURL, 
-    //                     patientData
-    //                 );
-    //             }
+                let response;
+                if (this.isEditing) {
+                    response = await api.put(
+                        `/api/patient/${this.currentPatient.id}`,
+                        patientData
+                    );
+                } else {
+                    response = await api.post(
+                        '/api/patient',
+                        patientData
+                    );
+                }
 
-    //             console.log('Respuesta del servidor:', response.data);
+                console.log('Respuesta del servidor:', response.data);
                 
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Éxito',
-    //                 text: this.isEditing ? 'Paciente actualizado con éxito' : 'Paciente creado con éxito'
-    //             });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: this.isEditing ? 'Paciente actualizado con éxito' : 'Paciente creado con éxito'
+                });
 
-    //             await this.loadPatients();
-    //             this.closeModal();
-    //         } catch (error) {
-    //             console.error('Error completo:', error);
-    //             console.error('Datos que se intentaron enviar:', patientData);
-    //             console.error('Respuesta del servidor:', error.response?.data);
+                await this.loadPatients();
+                this.closeModal();
+            } catch (error) {
+                console.error('Error completo:', error);
+                console.error('Datos que se intentaron enviar:', patientData);
+                console.error('Respuesta del servidor:', error.response?.data);
                 
-    //             let errorMessage = 'Error al guardar el paciente';
+                let errorMessage = 'Error al guardar el paciente';
                 
-    //             if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-    //                 // Mostrar todos los errores del array
-    //                 errorMessage = error.response.data.errors
-    //                     .map(err => {
-    //                         if (typeof err === 'string') return err;
-    //                         return err.msg || err.message || JSON.stringify(err);
-    //                     })
-    //                     .filter(Boolean)
-    //                     .join('\n');
-    //             } else if (error.response?.data?.message) {
-    //                 errorMessage = error.response.data.message;
-    //             }
+                if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+                    // Mostrar todos los errores del array
+                    errorMessage = error.response.data.errors
+                        .map(err => {
+                            if (typeof err === 'string') return err;
+                            return err.msg || err.message || JSON.stringify(err);
+                        })
+                        .filter(Boolean)
+                        .join('\n');
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                }
                 
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 html: errorMessage.replace(/\n/g, '<br>'),
-    //                 confirmButtonText: 'Entendido'
-    //             });
-    //         }
-    //     },
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: errorMessage.replace(/\n/g, '<br>'),
+                    confirmButtonText: 'Entendido'
+                });
+            }
+        },
 
-    //     // Agregar método para formatear fecha
-    //     formatDate(dateString) {
-    //         if (!dateString) return null;
-    //         const date = new Date(dateString);
-    //         return date.toISOString().split('T')[0];
-    //     },
+        formatDate(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+        },
 
-    //     async deletePatient(id) {
-    //         const patient = this.patients.find(p => p.id === id);
-    //         if (!patient) return;
+        async deletePatient(id) {
+            const patient = this.patients.find(p => p.id === id);
+            if (!patient) return;
 
-    //         const result = await Swal.fire({
-    //             title: '¿Está seguro?',
-    //             text: `¿Desea eliminar el paciente con cédula: ${patient.identifier}?`,
-    //             icon: 'warning',
-    //             showCancelButton: true,
-    //             confirmButtonColor: '#3085d6',
-    //             cancelButtonColor: '#d33',
-    //             confirmButtonText: 'Sí, eliminar',
-    //             cancelButtonText: 'Cancelar'
-    //         });
+            const result = await Swal.fire({
+                title: '¿Está seguro?',
+                text: `¿Desea eliminar el paciente con cédula: ${patient.identifier}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
 
-    //         if (result.isConfirmed) {
-    //             try {
-    //                 await axios.delete(`${this.baseURL}/${id}`);
-    //                 await this.loadPatients();
-    //                 Swal.fire(
-    //                     'Eliminado',
-    //                     `El paciente ${patient.identifier} ha sido eliminado con éxito`,
-    //                     'success'
-    //                 );
-    //             } catch (error) {
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Error',
-    //                     text: 'Error al eliminar el paciente'
-    //                 });
-    //             }
-    //         }
-    //     },
+            if (result.isConfirmed) {
+                try {
+                    await api.delete(`/api/patient/${id}`);
+                    await this.loadPatients();
+                    Swal.fire(
+                        'Eliminado',
+                        `El paciente ${patient.identifier} ha sido eliminado con éxito`,
+                        'success'
+                    );
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al eliminar el paciente'
+                    });
+                }
+            }
+        },
 
-    //     openModal() {
-    //         this.isEditing = false;
-    //         this.currentPatient = {
-    //             id: null,
-    //             firstName: '',
-    //             lastName: '',
-    //             birthDate: '',
-    //             gender: 'masculino',
-    //             identifier: '',
-    //         };
-    //         this.showModal = true;
-    //     },
-    //     closeModal() {
-    //         this.showModal = false;
-    //         this.isEditing = false;
-    //     },
-    //     async editPatient(id) {
-    //         try {
-    //             const response = await axios.get(`${this.baseURL}/${id}`);
-    //             const patientData = response.data;
-    //             this.currentPatient = {
-    //                 id: patientData.id,
-    //                 firstName: patientData.firstName,
-    //                 lastName: patientData.lastName,
-    //                 birthDate: patientData.birthDate,
-    //                 gender: patientData.gender,
-    //                 identifier: patientData.identifier,
-    //                 registrationDate: patientData.registrationDate
-    //             };
-    //             this.isEditing = true;
-    //             this.showModal = true;
-    //         } catch (error) {
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: 'Error al obtener los datos del paciente'
-    //             });
-    //         }
-    //     },
-    //     openInactiveModal() {
-    //         this.showInactiveModal = true;
-    //     },
-    //     closeInactiveModal() {
-    //         this.showInactiveModal = false;
-    //     },
-    //     async activatePatient(id) {
-    //         try {
-    //             const patient = this.patients.find(p => p.id === id);
-    //             if (patient) {
-    //                 await axios.put(`${this.baseURL}/${id}`, {
-    //                     ...patient,
-    //                     status: true
-    //                 });
-    //                 await this.loadPatients();
-    //                 Swal.fire({
-    //                     icon: 'success',
-    //                     title: 'Éxito',
-    //                     text: 'Paciente activado con éxito'
-    //                 });
-    //             }
-    //         } catch (error) {
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: 'Error al activar el paciente'
-    //             });
-    //         }
-    //     }
-    // },
+        openModal() {
+            this.isEditing = false;
+            this.currentPatient = {
+                id: null,
+                firstName: '',
+                lastName: '',
+                birthDate: '',
+                gender: 'masculino',
+                identifier: '',
+            };
+            this.showModal = true;
+        },
+
+        closeModal() {
+            this.showModal = false;
+            this.isEditing = false;
+        },
+
+        async editPatient(id) {
+            try {
+                const response = await api.get(`/api/patient/${id}`);
+                const patientData = response.data;
+                this.currentPatient = {
+                    id: patientData.id,
+                    firstName: patientData.firstName,
+                    lastName: patientData.lastName,
+                    birthDate: patientData.birthDate,
+                    gender: patientData.gender,
+                    identifier: patientData.identifier,
+                    registrationDate: patientData.registrationDate
+                };
+                this.isEditing = true;
+                this.showModal = true;
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al obtener los datos del paciente'
+                });
+            }
+        },
+
+        openInactiveModal() {
+            this.showInactiveModal = true;
+        },
+
+        closeInactiveModal() {
+            this.showInactiveModal = false;
+        },
+
+        async activatePatient(id) {
+            try {
+                const patient = this.patients.find(p => p.id === id);
+                if (patient) {
+                    await api.put(`/api/patient/${id}`, {
+                        ...patient,
+                        status: true
+                    });
+                    await this.loadPatients();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: 'Paciente activado con éxito'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al activar el paciente'
+                });
+            }
+        }
+    },
     watch: {
         patients: {
             handler(newVal) {

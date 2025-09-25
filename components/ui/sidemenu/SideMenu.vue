@@ -10,7 +10,7 @@
       </div>
       <ul class="nav flex-column">
         <li class="nav-item">
-          <router-link class="nav-link d-flex align-items-center" to="/home" exact-active-class="active">
+          <router-link class="nav-link d-flex align-items-center" to="/dashboard" exact-active-class="active">
             <img src="/iconos/home.svg" alt="Inicio" width="17" height="17" class="iconColor">
             <span v-show="isOpen" class="ms-3">Inicio</span>
           </router-link>
@@ -27,22 +27,22 @@
           </a>
           <ul class="submenu" v-show="submenuStates.usuarios && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/usuarios/pacientes" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/usuarios/pacientes" exact-active-class="active">
                 <span>Pacientes</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/usuarios/doctores" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/usuarios/doctores" exact-active-class="active">
                 <span>Doctores</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/usuarios/clientes" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/usuarios/clientes" exact-active-class="active">
                 <span>Clientes</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/usuarios/proveedores" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/usuarios/proveedores" exact-active-class="active">
                 <span>Proveedores</span>
               </router-link>
             </li>
@@ -59,12 +59,12 @@
           </a>
           <ul class="submenu" v-show="submenuStates.citas && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/cita" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/cita" exact-active-class="active">
                 <span>Programar Citas</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/citas/facturacion" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/citas/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
             </li>
@@ -82,12 +82,12 @@
           </a>
           <ul class="submenu" v-show="submenuStates.emergencia && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/emergencia/listado" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/emergencia/listado" exact-active-class="active">
                 <span>Listado de Emergencias</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/emergencia/facturacion" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/emergencia/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
             </li>
@@ -105,12 +105,12 @@
           </a>
           <ul class="submenu" v-show="submenuStates.farmacia && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/farmacia/inventario" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/farmacia/inventario" exact-active-class="active">
                 <span>Inventario</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/farmacia/facturacion" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/farmacia/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
             </li>
@@ -129,12 +129,12 @@
           </a>
           <ul class="submenu" v-show="submenuStates.laboratorio && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/laboratorio/listado" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/laboratorio/listado" exact-active-class="active">
                 <span>Listado de Laboratorios</span>
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/laboratorio/facturacion" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/laboratorio/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
             </li>
@@ -153,7 +153,7 @@
           </a>
           <ul class="submenu" v-show="submenuStates.almacen && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/almacen/productos" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/almacen/productos" exact-active-class="active">
                 <span>Productos</span>
               </router-link>
             </li>
@@ -171,7 +171,12 @@
           </a>
           <ul class="submenu" v-show="submenuStates.finanzas && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/ventas" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/finanzas/finanzas" exact-active-class="active">
+                <span>Transacciones</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link class="nav-link submenu-link" to="/dashboard/finanzas/ventas/ventas" exact-active-class="active">
                 <span>Ventas</span>
               </router-link>
             </li>
@@ -190,23 +195,19 @@
               </a>
               <ul class="submenu nested-submenu" v-show="submenuStates.compras && isOpen">
                 <li>
-                  <router-link class="nav-link submenu-link" 
-                              to="/compras/solicitar-compra" 
-                              exact-active-class="active">
+                  <router-link class="nav-link submenu-link" to="/dashboard/finanzas/compras/SolicitarCompra" exact-active-class="active">
                     <span>Solicitar Compra</span>
                   </router-link>
                 </li>
                 <li>
-                  <router-link class="nav-link submenu-link" 
-                              to="/compras/solicitudes-de-compras" 
-                              exact-active-class="active">
+                  <router-link class="nav-link submenu-link" to="/dashboard/finanzas/compras/SolicitudesCompras" exact-active-class="active">
                     <span>Solicitudes de Compra</span>
                   </router-link>
                 </li>
               </ul>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/reportes" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/finanzas/reportes" exact-active-class="active">
                 <span>Reportes</span>
               </router-link>
             </li>
@@ -245,81 +246,16 @@ export default {
     };
   },
   computed: {
-    isInUsuariosSection() {
-      const path = this.$route.path;
-      return path.startsWith("/usuarios") || path.startsWith("/usuarios/clientes");
-    },
-    isInFarmaciaSection() {
-      const path = this.$route.path;
-      return path.startsWith("/farmacia");
-    },
-    isInFinanzasSection() {
-      const path = this.$route.path;
-      return path.startsWith("/finanzas") || 
-             path.startsWith("/ventas") || 
-             path.startsWith("/compras") ||
-             path.startsWith("/reportes");
-    },
-    isInCitasSection() {
-      const path = this.$route.path;
-      return path.startsWith("/citas") || path.startsWith("/cita");
-    },
-    isInEmergenciaSection() {
-      const path = this.$route.path;
-      return path.startsWith("/emergencia");
-    },
-    isInLaboratorioSection() {
-      const path = this.$route.path;
-      return path.startsWith("/laboratorio");
-    },
-    isInAlmacenSection() {
-      const path = this.$route.path;
-      return path.startsWith("/almacen");
-    },
-    isInComprasSection() {
-      const path = this.$route.path;
-      return path.startsWith("/compras");
-    }
-    ,
-    // current width exposed for parent alignment
     currentWidth() {
       return this.isOpen ? '240px' : '80px';
     }
   },
   mounted() {
-    // emit initial state and width so parent (NavBar) can align immediately
     this.$emit('menu-toggled', this.isOpen, this.currentWidth);
   },
   watch: {
     $route: {
       immediate: true,
-      handler(newRoute) {
-        const path = newRoute.path;
-        
-        Object.keys(this.submenuStates).forEach(key => {
-          this.submenuStates[key] = false;
-        });
-
-        // Activar el submenú correspondiente
-        if (path.startsWith("/usuarios") || path.startsWith("/usuarios/clientes")) {
-          this.submenuStates.usuarios = true;
-        } else if (path.startsWith("/citas") || path.startsWith("/cita")) {
-          this.submenuStates.citas = true;
-        } else if (path.startsWith("/emergencia")) {
-          this.submenuStates.emergencia = true;
-        } else if (path.startsWith("/farmacia")) {
-          this.submenuStates.farmacia = true;
-        } else if (path.startsWith("/laboratorio")) {
-          this.submenuStates.laboratorio = true;
-        } else if (path.startsWith("/almacen")) {
-          this.submenuStates.almacen = true;
-        } else if (path.startsWith("/finanzas") || 
-                   path.startsWith("/ventas") || 
-                   path.startsWith("/compras") ||
-                   path.startsWith("/reportes")) {
-          this.submenuStates.finanzas = true;
-        }
-      }
     }
   },
   methods: {
@@ -334,7 +270,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .iconColor {
     filter: invert(48%) sepia(0%) saturate(0%) hue-rotate(147deg) brightness(89%) contrast(93%);
   }

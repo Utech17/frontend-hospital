@@ -130,11 +130,9 @@
 
 <script>
 import Swal from 'sweetalert2';
-import authGuard from '@/mixins/authGuard';
 
 export default {
     name: 'DataGridSupplier',
-    mixins: [authGuard],
     data() {
         return {
             searchQuery: '',

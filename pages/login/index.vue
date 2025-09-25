@@ -21,7 +21,7 @@
         <input type="email" id="email" v-model="email" required>
         <label for="password">Contraseña:</label>
         <input type="password" id="password" v-model="password" required>
-        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+        <button type="submit" class="btn-login btn-primary">Iniciar Sesión</button>
       </form>
       <p>¿No tienes cuenta? <router-link to="/register">Regístrate</router-link></p>
     </div>
@@ -32,17 +32,20 @@
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
-import { useApi } from '~/composables/useApi';
+import api from '~/utils/simpleApi';
+
+definePageMeta({
+  layout: 'login',
+});
 
 const email = ref('');
 const password = ref('');
 const router = useRouter();
 
-const { post, setToken } = useApi();
 
 async function handleSubmit() {
   try {
-    const response = await post('/user/login', { email: email.value, password: password.value });
+    const response = await api.post('/api/user/login', { email: email.value, password: password.value });
 
     const payload = response?.data ?? response;
     const userData = payload?.user || payload?.data?.user || payload?.data || payload;
@@ -88,7 +91,8 @@ async function handleSubmit() {
   }
 }
 </script>
-<style>
+
+<style lang="scss" >
 /* .bodyAuth {
   background-image: url('/logos/medicos.jpg'); 
   background-image: url('../../../assets/logos/medicos.jpg'); 
@@ -103,7 +107,7 @@ async function handleSubmit() {
   padding: 0;
 } */
 .bodyAuth {
-  position: relative; /* Para el posicionamiento absoluto del hijo */
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -119,11 +123,11 @@ async function handleSubmit() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 0; /* Asegura que la imagen esté detrás de todo */
+  z-index: 0;
 }
 
 .left {
-  position: relative; /* Para que aparezca sobre la imagen */
+  position: relative;
   z-index: 2;
   background-color: #2563eb;
   padding: 165px;
@@ -160,7 +164,7 @@ async function handleSubmit() {
 
 .login-container {
   background-color: #fff;
-  position: relative; /* Para que aparezca sobre la imagen */
+  position: relative;
   z-index: 2;
   padding: 110px;
   text-align: center;
@@ -212,6 +216,17 @@ input {
 }
 
 .btn {
+  width: 100%;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-login {
   width: 100%;
   background-color: #2563eb;
   color: #fff;

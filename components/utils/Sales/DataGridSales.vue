@@ -110,12 +110,10 @@
 
 <script>
 import Swal from 'sweetalert2';
-import authGuard from '@/mixins/authGuard';
 import moment from 'moment';
 
 export default {
     name: 'DataGridSales',
-    mixins: [authGuard],
     props: {
         sales: {
             type: Array,

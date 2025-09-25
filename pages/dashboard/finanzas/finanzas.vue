@@ -8,6 +8,8 @@
 import { defineComponent } from 'vue';
 import DataGridFinance from '@/components/utils/finance/DataGridFinance.vue';
 
+
+
 export default defineComponent({
   name: 'FinanceView',
   components: { DataGridFinance }

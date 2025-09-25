@@ -1,18 +1,30 @@
 <template>
   <div class="layout">
-    <!-- <SideMenu ref="sideMenu" @menu-toggled="updateSideMenuWidth"/> -->
+    <SideMenu ref="sideMenu" @menu-toggled="updateSideMenuWidth"/>
     <div class="content flex-grow-1" :style="{ marginLeft: sideMenuWidth }">
-      <!-- <NavBar :title="pageTitle" :sideMenuWidth="sideMenuWidth" @toggle-menu="toggleSideMenu"/> -->
+      <NavBar :title="pageTitle" :sideMenuWidth="sideMenuWidth" @toggle-menu="toggleSideMenu"/>
       <main class="main-content">
-        <slot><NuxtPage /></slot>
+        <NuxtPage />
       </main>
     </div>
   </div>
 </template>
 
+<script setup>
+import { ref, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const pageTitle = ref('Inicio')
+
+watchEffect(() => {
+  pageTitle.value = route.meta?.title || 'Inicio'
+})
+</script>
+
 <script>
-import NavBar from '@/components/ui/navbar/NavBar.vue'
-import SideMenu from '@/components/ui/sidemenu/SideMenu'
+import NavBar from '~/components/ui/navbar/NavBar.vue'
+import SideMenu from '~/components/ui/sidemenu/SideMenu.vue'
 
 export default {
   name: 'default',
@@ -46,7 +58,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .layout {
   background-color: #f5f7fa;
   min-height: 100vh;

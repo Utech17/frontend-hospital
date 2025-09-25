@@ -1,18 +1,20 @@
 <template>
     <div class="auth-layout">
-        <main>
-            <slot></slot> <!-- Aquí se insertarán los componentes hijos -->
-        </main>
+        <NuxtPage />
     </div>
 </template>
 
 <script>
-    export default {
+import Login from '~/pages/login/index.vue'
+export default {
     name: 'login',
-    }
+    components: {
+    Login,
+    },
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .auth-layout {
     display: flex;
     flex-direction: column;
@@ -20,13 +22,5 @@
     justify-content: center;
     height: 100vh;
     background-color: #f5f5f5;
-    }
-
-    header {
-    margin-bottom: 20px;
-    }
-
-    footer {
-    margin-top: 20px;
     }
 </style>

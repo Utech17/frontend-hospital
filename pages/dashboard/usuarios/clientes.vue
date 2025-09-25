@@ -8,6 +8,10 @@
 import { defineComponent } from 'vue';
 import DataGridClient from '@/components/utils/user/client/DataGridClient.vue';
 
+definePageMeta({
+  title: 'Usuarios -> Clientes'
+})
+
 export default defineComponent({
   name: 'ClientListView',
   components: { DataGridClient }

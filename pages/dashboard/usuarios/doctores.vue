@@ -8,6 +8,10 @@
 import { defineComponent } from 'vue';
 import AddDoctor from '@/components/utils/user/doctors/AddDoctor.vue';
 
+definePageMeta({
+  title: 'Usuarios -> Doctores'
+})
+
 export default defineComponent({
     name: 'DoctorView',
     components: { AddDoctor }
