@@ -1,474 +1,460 @@
 <template>
-    <div class="container mt-5">
-        <div class="grid-view">
-            <input type="text" class="form-control mb-3"
-                placeholder="Buscar..." v-model="searchQuery" />
-            <div>
-                <button class="btn btn-primary btn-block" style="display: flex;" @click="openModal()">
-                    <img src="/iconos/agregar.svg" alt="ventas" width="45" height="45" class="iconColor">
-                    <b>Agregar Ventas</b>
-                </button>
+  <div class="patient-table-wrapper">
+    <div class="patient-table-card">
+      <div class="grid-view">
+        <input type="text" class="form-control mb-3"
+            placeholder="Buscar por producto, cliente, estado..." v-model="searchQuery" />
+        <button class="btn btn-primary icon-btn add-btn" @click="openModal()" title="Agregar venta">
+            <AddCircleSvg class="svg-btn" />
+        </button>
+      </div>
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">{{ isEditing ? 'Editar' : 'Agregar' }} Venta</h2>
+          <form @submit.prevent="saveSale">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="product">Producto</label>
+                <input type="text" id="product" v-model="currentSale.product" required class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="client">Cliente</label>
+                <input type="text" id="client" v-model="currentSale.client" required class="form-control">
+              </div>
             </div>
-        </div>
-        
-        <!---------------- Modal Agregar/Editar venta ---------------->
-        <div v-if="showModal" class="modal-overlay">
-            <div class="modal-content">
-                <h2 class="modal-title">{{ isEditing ? 'Editar' : 'Agregar' }} Venta</h2>
-                <form @submit.prevent="savesales">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="type">Buscar Cliente</label>
-                            <select id="description" v-model="currentsales.client_id" required class="form-control">
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option v-for="clients in localClients" :key="clients.id" :value="clients.id">{{ clients.name }} {{ clients.last_name }}</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="type">Buscar Paciente</label>
-                            <select id="description" v-model="currentsales.patient_id" required class="form-control">
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option v-for="patient in localPatients" :key="patient.id" :value="patient.id">{{ patient.firstName }} {{ patient.lastName }}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="type">Buscar Producto</label>
-                            <select id="description" v-model="currentsales.product_id" required class="form-control">
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option v-for="products in localProducts" :key="products.id" :value="products.id">{{ products.name }}</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="type">Método de Pago</label>
-                            <select id="description" v-model="currentsales.payment_type_id" required class="form-control">
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option v-for="payment in localPayments" :key="payment.id" :value="payment.id">{{ payment.description }}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="price">Precio</label>
-                            <input type="number" id="price" v-model="currentsales.price" required class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="quantity">Cantidad</label>
-                            <input type="number" id="quantity" v-model="currentsales.quantity" required class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group button-group">
-                        <button type="button" @click="closeModal" class="btn btn-secondary btn-lg">Cancelar</button>
-                        <button type="submit" class="btn btn-primary btn-lg">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
-                    </div>
-                </form>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="amount">Monto</label>
+                <input type="number" id="amount" v-model="currentSale.amount" required class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="status">Estado</label>
+                <select id="status" v-model="currentSale.status" required class="form-control">
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Pagado">Pagado</option>
+                </select>
+              </div>
             </div>
+            <div class="form-group button-group">
+              <button type="button" @click="closeModal" class="btn btn-secondary btn-lg">Cancelar</button>
+              <button type="submit" class="btn btn-primary btn-lg">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
+            </div>
+          </form>
         </div>
-        <!---------------- Modal Agregar/Editar Venta ---------------->
-
-        <table class="table table-hover">
-            <thead>
-                <tr style="border-radius: 30px;">
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Nro. Factura</th>
-                    <th>Monto</th>
-                    <th>Estatus</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="sales in paginatedSales" :key="sales.id">
-                    <td>{{ formatDate(sales.billing_date) }}</td>
-                    <td>{{ sales.client?.name }} {{ sales.client?.last_name }}</td>
-                    <td>{{ sales.num_fact }}</td>
-                    <td>{{ sales.sale?.amount || 0 }}</td>
-                    <td>{{ sales.billing_status }}</td>
-                </tr>
-            </tbody>
+      </div>
+      <div class="table-responsive">
+        <table class="table patient-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cliente</th>
+              <th>Monto</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="sale in filteredSales" :key="sale.id">
+              <td>{{ sale.product }}</td>
+              <td>{{ sale.client }}</td>
+              <td>{{ sale.amount }}</td>
+              <td>
+                <span :class="['status-oval', sale.status === 'Pendiente' ? 'available' : 'out-of-stock']">
+                  {{ sale.status }}
+                </span>
+              </td>
+              <td>
+                <div class="action-btn-group">
+                  <button class="btn btn-success btn-sm icon-btn" @click="editSale(sale.id)" title="Editar venta">
+                    <EditSvg class="svg-btn" />
+                  </button>
+                  <button class="btn btn-danger btn-sm icon-btn" @click="deleteSale(sale.id)" title="Eliminar venta">
+                    <DeleteSvg class="svg-btn" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
-
-        <!-- Paginación -->
-        <div class="pagination-container" v-if="totalPages > 1">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
-                    </li>
-                    <li class="page-item" v-for="page in totalPages" :key="page" 
-                        :class="{ active: page === currentPage }">
-                        <a class="page-link" href="#" @click.prevent="currentPage = page">{{ page }}</a>
-                    </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <a class="page-link" href="#" @click.prevent="currentPage++">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+      </div>
     </div>
+  </div>
 </template>
-
 <script>
 import Swal from 'sweetalert2';
-import moment from 'moment';
-
+import api from '~/utils/simpleApi';
+import EditSvg from '~/components/svg/edit.vue';
+import DeleteSvg from '~/components/svg/delete.vue';
+import AddCircleSvg from '~/components/svg/add-circle.vue';
 export default {
-    name: 'DataGridSales',
-    props: {
-        sales: {
-            type: Array,
-            required: false
-        },
-        clients: {
-            type: Array,
-            required: false
-        },
-        products: {
-            type: Array,
-            required: false
-        },
-        patients: {
-            type: Array,
-            required: false
-        },
-        payments: {
-            type: Array,
-            required: false
-        },
-    },
-    data() {
-        return {
-            searchQuery: '',
-            showModal: false,
-            isEditing: false,
-            currentsales: {
-                id: null,
-                client_id: '',
-                product_id: '',
-                patient_id: '',
-                quantity: 1,
-                price:0.0
-            },
-            localSales: [],
-            localClients: [],
-            localProducts: [],
-            localPatients: [],
-            localPayments: [],
-            currentPage: 1,
-            itemsPerPage: 12
-        };
-    },
-    watch: {
-        sales: {
-            immediate: true,
-            handler(newSales) {
-                if (newSales) {
-                    this.localSales = newSales.map(sale => ({
-                        ...sale,
-                        sale: sale.sale || { amount: 0 },
-                        client: sale.client || { name: '', last_name: '' }
-                    }));
-                }
-            }
-        },
-        clients: {
-            immediate: true,
-            handler(newClient) {
-                if (newClient) {
-                    this.localClients = newClient.map(client => ({
-                        ...client,
-                    }));
-                }
-            }
-        },
-        products: {
-            immediate: true,
-            handler(newProducts) {
-                if (newProducts) {
-                    this.localProducts = newProducts.map(Products => ({
-                        ...Products,
-                    }));
-                }
-            }
-        },
-        patients: {
-            immediate: true,
-            handler(newPatient) {
-                if (newPatient) {
-                    this.localPatients = newPatient.map(Patient => ({
-                        ...Patient,
-                    }));
-                }
-            }
-        },
-        payments: {
-            immediate: true,
-            handler(newPayment) {
-                if (newPayment) {
-                    this.localPayments = newPayment.map(Payment => ({
-                        ...Payment,
-                    }));
-                }
-            }
-        },
-    },
-    created() {
-        this.localSales = this.sales.map(sale => ({
-            ...sale,
-            sale: sale.sale || { amount: 0 },
-            client: sale.client || { name: '', last_name: '' }
+  name: 'DataGridSales',
+  components: { EditSvg, DeleteSvg, AddCircleSvg },
+  data() {
+    return {
+      searchQuery: '',
+      showModal: false,
+      isEditing: false,
+      currentSale: {
+        id: null,
+        product: '',
+        client: '',
+        amount: '',
+        status: 'Pendiente'
+      },
+      sales: []
+    };
+  },
+  computed: {
+    filteredSales() {
+      const search = this.searchQuery.toLowerCase().trim();
+      return this.sales.filter(sale => {
+        return (
+          (sale.product && sale.product.toLowerCase().includes(search)) ||
+          (sale.client && sale.client.toLowerCase().includes(search)) ||
+          (sale.status && sale.status.toLowerCase().includes(search))
+        );
+      });
+    }
+  },
+  created() {
+    this.loadSales();
+  },
+  methods: {
+    async loadSales() {
+      try {
+        const response = await api.get('/api/sales');
+        let arr = Array.isArray(response) ? response : (response?.data || response?.sales || []);
+        this.sales = arr.map(sale => ({
+          id: sale.id || sale._id,
+          product: sale.product || '',
+          client: sale.client || '',
+          amount: sale.amount || '',
+          status: sale.status || 'Pendiente'
         }));
-        this.localClients = [...this.clients];
-        this.localProducts = [...this.products];
-        this.localPatients = [...this.patients];
-        this.localPayments = [...this.payments];
+      } catch (e) {
+        this.sales = [];
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error al cargar ventas' });
+      }
     },
-    computed: {
-        filteredsales() {
-            return this.localSales.map(sales => ({
-                ...sales,
-                sale: sales.sale || { amount: 0 },
-                client: sales.client || { name: '', last_name: '' },
-            })).filter(sales => {
-                const searchString = `${sales.billing_date || ''} ${sales.client.name || ''} ${sales.client.last_name || ''} ${sales.num_fact || ''} ${sales.sale.amount || 0} ${sales.billing_status || ''}`.toLowerCase();
-                return searchString.includes(this.searchQuery.toLowerCase());
-            });
-        },
-        paginatedSales() {
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            return this.filteredsales.slice(start, end);
-        },
-        totalPages() {
-            return Math.ceil(this.filteredsales.length / this.itemsPerPage);
+    async saveSale() {
+      try {
+        if (!this.currentSale.product || !this.currentSale.client || !this.currentSale.amount) {
+          Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Por favor complete todos los campos obligatorios' });
+          return;
         }
+        let data = { ...this.currentSale };
+        let response;
+        if (this.isEditing) {
+          response = await api.put(`/api/sales/${this.currentSale.id}`, data);
+        } else {
+          response = await api.post('/api/sales', data);
+        }
+        Swal.fire({ icon: 'success', title: 'Éxito', text: this.isEditing ? 'Venta actualizada' : 'Venta creada' });
+        await this.loadSales();
+        this.closeModal();
+      } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error al guardar venta' });
+      }
     },
-    // methods: {
-    //     openModal() {
-    //         this.isEditing = false;
-    //         this.currentsales = {
-    //             id: null,
-    //             client_id: '',
-    //             product_id: '',
-    //             quantity: 1,
-    //             price:0.0
-    //         };
-    //         this.showModal = true;
-    //     },
-    //     closeModal() {
-    //         this.showModal = false;
-    //         this.isEditing = false;
-    //         this.currentsales = {
-    //             id: null,
-    //             client_id: '',
-    //             product_id: '',
-    //             patient_id: '',
-    //             quantity: 1,
-    //             price: 0.0,
-    //             payment_type_id: ''
-    //         };
-    //     },
-    //     async savesales() {
-    //         try {
-    //             if (!this.currentsales.client_id || 
-    //                 !this.currentsales.product_id || 
-    //                 !this.currentsales.payment_type_id ||
-    //                 !this.currentsales.quantity ||
-    //                 !this.currentsales.price) {
-    //                 Swal.fire({
-    //                     icon: 'warning',
-    //                     title: 'Campos requeridos',
-    //                     text: 'Por favor complete todos los campos obligatorios'
-    //                 });
-    //                 return;
-    //             }
-
-    //             let form = {
-    //                 patient_id: this.currentsales.patient_id,
-    //                 client_id: this.currentsales.client_id,
-    //                 BillingDetails: [
-    //                     {
-    //                         product_id: this.currentsales.product_id,
-    //                         quantity: this.currentsales.quantity,
-    //                         price: this.currentsales.price,
-    //                     }
-    //                 ],
-    //                 payment_type_id: this.currentsales.payment_type_id,
-    //             }
-
-    //             const response = await axios.post('https://backend-hospital-mediplus.onrender.com/api/billing', form);
-
-    //             const client = this.localClients.find(c => c.id === this.currentsales.client_id);
-    //             const product = this.localProducts.find(p => p.id === this.currentsales.product_id);
-
-    //             const newSale = {
-    //                 id: response.data.id,
-    //                 billing_date: new Date().toISOString().split('T')[0],
-    //                 client: {
-    //                     id: client.id,
-    //                     name: client.name,
-    //                     last_name: client.last_name
-    //                 },
-    //                 num_fact: response.data.num_fact,
-    //                 sale: {
-    //                     amount: this.currentsales.price * this.currentsales.quantity
-    //                 },
-    //                 billing_status: 'Completado',
-    //                 BillingDetails: [{
-    //                     product_id: product.id,
-    //                     product: product,
-    //                     quantity: this.currentsales.quantity,
-    //                     price: this.currentsales.price
-    //                 }]
-    //             };
-
-    //             this.localSales.unshift(newSale);
-
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Éxito',
-    //                 text: 'Venta creada con éxito',
-    //                 timer: 1500
-    //             });
-
-    //             this.closeModal();
-
-    //             this.$emit('sale-added');
-
-    //         } catch (error) {
-    //             console.error('Error completo:', error);
-    //             console.error('Respuesta del servidor:', error.response?.data);
-                
-    //             let errorMessage = 'Error al guardar la venta';
-                
-    //             if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-    //                 errorMessage = error.response.data.errors
-    //                     .map(err => {
-    //                         if (typeof err === 'string') return err;
-    //                         return err.msg || err.message || JSON.stringify(err);
-    //                     })
-    //                     .filter(Boolean)
-    //                     .join('\n');
-    //             } else if (error.response?.data?.message) {
-    //                 errorMessage = error.response.data.message;
-    //             }
-                
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 html: errorMessage.replace(/\n/g, '<br>'),
-    //                 confirmButtonText: 'Entendido'
-    //             });
-    //         }
-    //     },
-    //     formatDate(date) {
-    //         return moment(date).format('DD/MM/YYYY');
-    //     }
-    // },
+    async deleteSale(id) {
+      try {
+        await api.del(`/api/sales/${id}`);
+        await this.loadSales();
+        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Venta eliminada' });
+      } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error al eliminar venta' });
+      }
+    },
+    async editSale(id) {
+      try {
+        const response = await api.get(`/api/sales/${id}`);
+        const sale = response.data || response;
+        this.currentSale = {
+          id: sale.id || sale._id,
+          product: sale.product || '',
+          client: sale.client || '',
+          amount: sale.amount || '',
+          status: sale.status || 'Pendiente'
+        };
+        this.isEditing = true;
+        this.showModal = true;
+      } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error al obtener venta' });
+      }
+    },
+    openModal() {
+      this.isEditing = false;
+      this.currentSale = {
+        id: null,
+        product: '',
+        client: '',
+        amount: '',
+        status: 'Pendiente'
+      };
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.isEditing = false;
+    }
+  }
 };
 </script>
-
 <style scoped>
-.iconColor {
-    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+.add-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.18s, box-shadow 0.18s;
+    padding: 0;
 }
-
+.add-btn:hover {
+    background: #1746b0;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.18);
+}
 .table {
     margin-top: 20px;
 }
-
 .grid-view {
     display: flex;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    gap: 40px;
+    gap: 0;
+    margin-bottom: 20px;
+    width: 100%;
 }
-
+.grid-view input[type="text"] {
+    flex: 1 1 320px;
+    margin-right: 12px;
+    min-width: 0;
+}
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+    background: rgba(30, 41, 59, 0.55);
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 9999;
+    transition: background 0.2s;
+    backdrop-filter: blur(2px);
 }
-
 .modal-content {
+    display: flex;
     flex-direction: column;
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 90%;
-    max-width: 700px;
+    background: #fff;
+    padding: 38px 30px 28px 30px;
+    border-radius: 22px;
+    width: 95vw;
+    max-width: 420px;
+    min-width: 260px;
+    box-shadow: 0 12px 48px 0 rgba(30,41,59,0.22), 0 2px 8px rgba(0,0,0,0.10);
     justify-content: center;
+    align-items: stretch;
+    animation: modalIn .22s cubic-bezier(.4,0,.2,1);
+    position: relative;
 }
-
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 .modal-title {
-    text-align: left;
-    margin-bottom: 20px;
-    color: #333;
+    text-align: center;
+    margin-bottom: 22px;
+    color: #1e293b;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
 }
-
 .form-row {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
     margin-bottom: 15px;
+    justify-content: space-between;
 }
-
 .form-group {
-    flex: 0 0 48%;
+    flex: 1 1 180px;
+    min-width: 120px;
 }
-
 .form-group label {
     text-align: left;
     display: block;
-    margin: 0 5px;
-    font-weight: bold;
+    margin: 0 5px 6px 5px;
+    font-weight: 600;
+    color: #334155;
+    font-size: 1rem;
 }
-
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: 10px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    background: #f8fafc;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(30,41,59,0.04);
 }
-
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 2px #2563eb22;
+}
 .button-group {
     display: flex;
     justify-content: flex-end;
-    margin-top: 30px;
+    gap: 14px;
+    margin-top: 32px;
 }
-
-.btn-secondary {
-    margin-right: 10px;
+.btn-block {
+    align-items: center;
+    padding: 8px 18px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    transition: background 0.2s;
 }
-
-.pagination-container {
-    margin-top: 20px;
+.table {
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-
-.pagination {
-    margin-bottom: 0;
+.table th, .table td {
+    padding: 12px 10px;
+    text-align: left;
 }
-
-.page-link {
-    color: #2d60ff;
-    cursor: pointer;
+.table th {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #2563eb;
+    border-bottom: 2px solid #e5e7eb;
 }
-
-.page-item.active .page-link {
-    background-color: #2d60ff;
-    border-color: #2d60ff;
-    color: white;
+.table tr {
+    transition: background 0.15s;
 }
-
-.page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    cursor: default;
+.table tr:hover {
+    background: #f3f6fa;
+}
+.patient-table-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 70vh;
+    width: 100%;
+    margin-top: 40px;
+}
+.patient-table-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    padding: 32px 28px 28px 28px;
+    width: 100%;
+    max-width: 1100px;
+    min-width: 320px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 18px;
+}
+.patient-table {
+    width: 100%;
+    background: #f8fafc;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.patient-table th, .patient-table td {
+    padding: 14px 12px;
+    text-align: left;
+}
+.patient-table th {
+    background: #e0e7ef;
+    font-weight: 700;
+    color: #2563eb;
+    border-bottom: 2px solid #d1d5db;
+}
+.patient-table tr {
+    transition: background 0.15s;
+}
+.patient-table tr:hover {
+    background: #e8f0fe;
+}
+.patient-table td {
+    font-size: 1.05rem;
+    color: #222;
+}
+@media (max-width: 900px) {
+    .patient-table-card {
+        padding: 18px 4px;
+        max-width: 98vw;
+    }
+    .patient-table th, .patient-table td {
+        padding: 10px 6px;
+        font-size: 0.98rem;
+    }
+}
+@media (max-width: 600px) {
+    .patient-table-card {
+        padding: 8px 0;
+        min-width: 0;
+    }
+    .patient-table th, .patient-table td {
+        padding: 7px 2px;
+        font-size: 0.93rem;
+    }
+}
+.svg-btn {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-bottom: 2px;
+}
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    position: relative;
+}
+.icon-btn:hover {
+    background: #e8f0fe;
+}
+.action-btn-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
 }
 </style>

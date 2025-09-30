@@ -1,7 +1,9 @@
 <template>
   <div class="home">
-      <div class="dashboard-content">
-        <h2>Bienvenido al Sistema de Gestión Hospitalaria</h2>
+      <div class="h-full w-full flex justify-center items-center">
+        <h2 class="text-5xl font-semibold text-center">
+          Bienvenido al Sistema de Gestión Hospitalaria
+        </h2>
       </div>
   </div>
 </template>
@@ -17,12 +19,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.dashboard-content {
-  padding: 20px;
-}
 
 h2 {
   color: #333;
-  margin-bottom: 20px;
 }
 </style> 

@@ -1,146 +1,152 @@
 <template>
-    <div class="container mt-5">
-        <div class="grid-view">
-            <input type="text" class="form-control mb-3" placeholder="Buscar por Fecha, Proveedor, N° de Orden"
-                v-model="searchQuery" />
-            <div class="button-group">
-                <button class="btn btn-danger" @click="showRejectedModal = true">Ver Rechazadas</button>
-                <button class="btn btn-success" @click="showApprovedModal = true">Ver Aprobadas</button>
-            </div>
+  <div class="patient-table-wrapper">
+    <div class="patient-table-card">
+      <div class="grid-view">
+        <input type="text" class="form-control mb-3" placeholder="Buscar por Fecha, Proveedor, N° de Orden" v-model="searchQuery" />
+        <div class="button-group">
+          <button class="btn btn-danger icon-btn" @click="showRejectedModal = true" title="Ver Rechazadas">
+            <DeleteSvg class="svg-btn" />
+          </button>
+          <button class="btn btn-success icon-btn" @click="showApprovedModal = true" title="Ver Aprobadas">
+            <AddCircleSvg class="svg-btn" />
+          </button>
         </div>
-
-        <table class="table table-hover">
+      </div>
+      <div class="table-responsive">
+        <table class="table patient-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>N° de Orden</th>
+              <th>Proveedor</th>
+              <th>Monto Total</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="buy in paginatedBuys" :key="buy.id">
+              <td>{{ formatDate(buy.date) }}</td>
+              <td>{{ buy.invoice_number }}</td>
+              <td>{{ buy.supplier.business_name }}</td>
+              <td>${{ calculateTotalAmount(buy) }}</td>
+              <td>{{ buy.departament.department_name }}</td>
+              <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
+              <td>
+                <button v-if="buy.status === 'pendiente'" class="btn btn-success btn-sm icon-btn" @click="approveBuy(buy.id)" title="Aprobar">
+                  <AddCircleSvg class="svg-btn" />
+                </button>
+                <button v-if="buy.status === 'pendiente'" class="btn btn-danger btn-sm icon-btn" @click="rejectBuy(buy.id)" title="Rechazar">
+                  <DeleteSvg class="svg-btn" />
+                </button>
+                <button v-else class="btn btn-info btn-sm icon-btn" @click="openEditStatusModal(buy)" title="Editar Estado">
+                  <EditSvg class="svg-btn" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-container" v-if="totalPages > 1">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
+            </li>
+            <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
+              <a class="page-link" href="#" @click.prevent="currentPage = page">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="currentPage++">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div v-if="showRejectedModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">Compras Rechazadas</h2>
+          <button type="button" @click="showRejectedModal = false" class="btn btn-secondary">Cerrar</button>
+          <table class="table table-hover mt-3">
             <thead>
-                <tr style="border-radius: 30px;">
-                    <th>Fecha</th>
-                    <th>N° de Orden</th>
-                    <th>Proveedor</th>
-                    <th>Monto Total</th>
-                    <th>Departamento</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
+              <tr>
+                <th>Fecha</th>
+                <th>N° de Orden</th>
+                <th>Proveedor</th>
+                <th>Monto Total</th>
+                <th>Departamento</th>
+                <th>Estado</th>
+              </tr>
             </thead>
             <tbody>
-                <tr v-for="buy in paginatedBuys" :key="buy.id">
-                    <td>{{ formatDate(buy.date) }}</td>
-                    <td>{{ buy.invoice_number }}</td>
-                    <td>{{ buy.supplier.business_name }}</td>
-                    <td>${{ calculateTotalAmount(buy) }}</td>
-                    <td>{{ buy.departament.department_name }}</td>
-                    <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
-                    <td>
-                        <button v-if="buy.status === 'pendiente'" class="btn btn-primary btn-sm" @click="approveBuy(buy.id)">Aprobar</button>
-                        <button v-if="buy.status === 'pendiente'" class="btn btn-danger btn-sm" @click="rejectBuy(buy.id)">Rechazar</button>
-                        <button v-else class="btn btn-info btn-sm" @click="openEditStatusModal(buy)">Editar Estado</button>
-                    </td>
-                </tr>
+              <tr v-for="buy in rejectedBuys" :key="buy.id">
+                <td>{{ formatDate(buy.date) }}</td>
+                <td>{{ buy.invoice_number }}</td>
+                <td>{{ buy.supplier.business_name }}</td>
+                <td>${{ calculateTotalAmount(buy) }}</td>
+                <td>{{ buy.departament.department_name }}</td>
+                <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
+              </tr>
             </tbody>
-        </table>
-
-        <!-- Paginación -->
-        <div class="pagination-container" v-if="totalPages > 1">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
-                    </li>
-                    <li class="page-item" v-for="page in totalPages" :key="page" 
-                        :class="{ active: page === currentPage }">
-                        <a class="page-link" href="#" @click.prevent="currentPage = page">{{ page }}</a>
-                    </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <a class="page-link" href="#" @click.prevent="currentPage++">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
+          </table>
         </div>
-
-        <!-- Modal para ver las compras rechazadas -->
-        <div v-if="showRejectedModal" class="modal-overlay">
-            <div class="modal-content">
-                <h2 class="modal-title">Compras Rechazadas</h2>
-                <button type="button" @click="showRejectedModal = false" class="btn btn-secondary">Cerrar</button>
-                <table class="table table-hover mt-3">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>N° de Orden</th>
-                            <th>Proveedor</th>
-                            <th>Monto Total</th>
-                            <th>Departamento</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="buy in rejectedBuys" :key="buy.id">
-                            <td>{{ formatDate(buy.date) }}</td>
-                            <td>{{ buy.invoice_number }}</td>
-                            <td>{{ buy.supplier.business_name }}</td>
-                            <td>${{ calculateTotalAmount(buy) }}</td>
-                            <td>{{ buy.departament.department_name }}</td>
-                            <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+      </div>
+      <div v-if="showApprovedModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">Compras Aprobadas</h2>
+          <button type="button" @click="showApprovedModal = false" class="btn btn-secondary">Cerrar</button>
+          <table class="table table-hover mt-3">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>N° de Orden</th>
+                <th>Proveedor</th>
+                <th>Monto Total</th>
+                <th>Departamento</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="buy in approvedBuys" :key="buy.id">
+                <td>{{ formatDate(buy.date) }}</td>
+                <td>{{ buy.invoice_number }}</td>
+                <td>{{ buy.supplier.business_name }}</td>
+                <td>${{ calculateTotalAmount(buy) }}</td>
+                <td>{{ buy.departament.department_name }}</td>
+                <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-if="showEditStatusModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">Editar Estado de Compra</h2>
+          <form @submit.prevent="updateBuyStatus">
+            <div class="form-group">
+              <label for="status">Estado</label>
+              <select id="status" v-model="currentBuy.status" class="form-control">
+                <option value="aprobada">Aprobada</option>
+                <option value="rechazada">Rechazada</option>
+                <option value="pendiente">Pendiente</option>
+              </select>
             </div>
-        </div>
-
-        <!-- Modal para ver las compras aprobadas -->
-        <div v-if="showApprovedModal" class="modal-overlay">
-            <div class="modal-content">
-                <h2 class="modal-title">Compras Aprobadas</h2>
-                <button type="button" @click="showApprovedModal = false" class="btn btn-secondary">Cerrar</button>
-                <table class="table table-hover mt-3">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>N° de Orden</th>
-                            <th>Proveedor</th>
-                            <th>Monto Total</th>
-                            <th>Departamento</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="buy in approvedBuys" :key="buy.id">
-                            <td>{{ formatDate(buy.date) }}</td>
-                            <td>{{ buy.invoice_number }}</td>
-                            <td>{{ buy.supplier.business_name }}</td>
-                            <td>${{ calculateTotalAmount(buy) }}</td>
-                            <td>{{ buy.departament.department_name }}</td>
-                            <td><span :class="statusClass(buy.status)">{{ buy.status }}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="form-group button-group">
+              <button type="button" @click="closeEditStatusModal" class="btn btn-secondary">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
+          </form>
         </div>
-
-        <!-- Modal para editar el estado de la compra -->
-        <div v-if="showEditStatusModal" class="modal-overlay">
-            <div class="modal-content">
-                <h2 class="modal-title">Editar Estado de Compra</h2>
-                <form @submit.prevent="updateBuyStatus">
-                    <div class="form-group">
-                        <label for="status">Estado</label>
-                        <select id="status" v-model="currentBuy.status" class="form-control">
-                            <option value="aprobada">Aprobada</option>
-                            <option value="rechazada">Rechazada</option>
-                            <option value="pendiente">Pendiente</option>
-                        </select>
-                    </div>
-                    <div class="form-group button-group">
-                        <button type="button" @click="closeEditStatusModal" class="btn btn-secondary">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
 import Swal from 'sweetalert2';
+import EditSvg from '~/components/svg/edit.vue';
+import DeleteSvg from '~/components/svg/delete.vue';
+import AddCircleSvg from '~/components/svg/add-circle.vue';
 
 export default {
     name: 'DataGridBuyRequest',
@@ -206,187 +212,187 @@ export default {
     async created() {
         await this.loadBuys();
     },
-    // methods: {
-    //     async loadBuys() {
-    //         try {
-    //             const response = await axios.get(this.baseURL);
-    //             this.buys = response.data.data.buys.sort((a, b) => b.id - a.id);
-    //         } catch (error) {
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: 'Error al cargar las compras'
-    //             });
-    //         }
-    //     },
-    //     openEditStatusModal(buy) {
-    //         this.currentBuy = { ...buy };
-    //         this.showEditStatusModal = true;
-    //     },
-    //     closeEditStatusModal() {
-    //         this.showEditStatusModal = false;
-    //     },
-    //     async approveBuy(id) {
-    //         const buy = this.buys.find(b => b.id === id);
-    //         if (!buy) return;
+    methods: {
+        async loadBuys() {
+            try {
+                const response = await axios.get(this.baseURL);
+                this.buys = response.data.data.buys.sort((a, b) => b.id - a.id);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar las compras'
+                });
+            }
+        },
+        openEditStatusModal(buy) {
+            this.currentBuy = { ...buy };
+            this.showEditStatusModal = true;
+        },
+        closeEditStatusModal() {
+            this.showEditStatusModal = false;
+        },
+        async approveBuy(id) {
+            const buy = this.buys.find(b => b.id === id);
+            if (!buy) return;
 
-    //         const result = await Swal.fire({
-    //             title: '¿Está seguro?',
-    //             text: `¿Desea aprobar la compra con N° de Orden ${buy.invoice_number}?`,
-    //             icon: 'warning',
-    //             showCancelButton: true,
-    //             confirmButtonColor: '#3085d6',
-    //             cancelButtonColor: '#d33',
-    //             confirmButtonText: 'Sí, aprobar',
-    //             cancelButtonText: 'Cancelar'
-    //         });
+            const result = await Swal.fire({
+                title: '¿Está seguro?',
+                text: `¿Desea aprobar la compra con N° de Orden ${buy.invoice_number}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, aprobar',
+                cancelButtonText: 'Cancelar'
+            });
 
-    //         if (result.isConfirmed) {
-    //             try {
-    //                 const buyData = {
-    //                     invoice_number: buy.invoice_number,
-    //                     date: buy.date,
-    //                     supplier_id: buy.supplier.id,
-    //                     department_id: buy.departament.id,
-    //                     status: 'aprobada',
-    //                     buy_details: buy.buy_details
-    //                 };
+            if (result.isConfirmed) {
+                try {
+                    const buyData = {
+                        invoice_number: buy.invoice_number,
+                        date: buy.date,
+                        supplier_id: buy.supplier.id,
+                        department_id: buy.departament.id,
+                        status: 'aprobada',
+                        buy_details: buy.buy_details
+                    };
 
-    //                 await axios.put(`${this.baseURL}/${id}`, buyData);
-    //                 await this.loadBuys();
+                    await axios.put(`${this.baseURL}/${id}`, buyData);
+                    await this.loadBuys();
                     
-    //                 Swal.fire({
-    //                     icon: 'success',
-    //                     title: 'Aprobada',
-    //                     text: `La compra con N° de Orden ${buy.invoice_number} ha sido aprobada con éxito`,
-    //                     timer: 1500
-    //                 });
-    //             } catch (error) {
-    //                 console.error('Error al aprobar:', error);
-    //                 console.error('Respuesta del servidor:', error.response?.data);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Aprobada',
+                        text: `La compra con N° de Orden ${buy.invoice_number} ha sido aprobada con éxito`,
+                        timer: 1500
+                    });
+                } catch (error) {
+                    console.error('Error al aprobar:', error);
+                    console.error('Respuesta del servidor:', error.response?.data);
                     
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Error',
-    //                     text: error.response?.data?.message || 'Error al aprobar la compra'
-    //                 });
-    //             }
-    //         }
-    //     },
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.response?.data?.message || 'Error al aprobar la compra'
+                    });
+                }
+            }
+        },
         
-    //     async rejectBuy(id) {
-    //         const buy = this.buys.find(b => b.id === id);
-    //         if (!buy) return;
+        async rejectBuy(id) {
+            const buy = this.buys.find(b => b.id === id);
+            if (!buy) return;
 
-    //         const result = await Swal.fire({
-    //             title: '¿Está seguro?',
-    //             text: `¿Desea rechazar la compra con N° de Orden ${buy.invoice_number}?`,
-    //             icon: 'warning',
-    //             showCancelButton: true,
-    //             confirmButtonColor: '#3085d6',
-    //             cancelButtonColor: '#d33',
-    //             confirmButtonText: 'Sí, rechazar',
-    //             cancelButtonText: 'Cancelar'
-    //         });
+            const result = await Swal.fire({
+                title: '¿Está seguro?',
+                text: `¿Desea rechazar la compra con N° de Orden ${buy.invoice_number}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, rechazar',
+                cancelButtonText: 'Cancelar'
+            });
 
-    //         if (result.isConfirmed) {
-    //             try {
-    //                 const buyData = {
-    //                     invoice_number: buy.invoice_number,
-    //                     date: buy.date,
-    //                     supplier_id: buy.supplier.id,
-    //                     department_id: buy.departament.id,
-    //                     status: 'rechazada',
-    //                     buy_details: buy.buy_details
-    //                 };
+            if (result.isConfirmed) {
+                try {
+                    const buyData = {
+                        invoice_number: buy.invoice_number,
+                        date: buy.date,
+                        supplier_id: buy.supplier.id,
+                        department_id: buy.departament.id,
+                        status: 'rechazada',
+                        buy_details: buy.buy_details
+                    };
 
-    //                 await axios.delete(`${this.baseURL}/${id}`, buyData);
-    //                 await this.loadBuys();
+                    await axios.delete(`${this.baseURL}/${id}`, buyData);
+                    await this.loadBuys();
                     
-    //                 Swal.fire({
-    //                     icon: 'success',
-    //                     title: 'Rechazada',
-    //                     text: `La compra con N° de Orden ${buy.invoice_number} ha sido rechazada con éxito`,
-    //                     timer: 1500
-    //                 });
-    //             } catch (error) {
-    //                 console.error('Error al rechazar:', error);
-    //                 console.error('Respuesta del servidor:', error.response?.data);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rechazada',
+                        text: `La compra con N° de Orden ${buy.invoice_number} ha sido rechazada con éxito`,
+                        timer: 1500
+                    });
+                } catch (error) {
+                    console.error('Error al rechazar:', error);
+                    console.error('Respuesta del servidor:', error.response?.data);
                     
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Error',
-    //                     text: error.response?.data?.message || 'Error al rechazar la compra'
-    //                 });
-    //             }
-    //         }
-    //     },
-    //     async updateBuyStatus() {
-    //         try {
-    //             const originalBuy = this.buys.find(b => b.id === this.currentBuy.id);
-    //             if (!originalBuy) {
-    //                 throw new Error('Compra no encontrada');
-    //             }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.response?.data?.message || 'Error al rechazar la compra'
+                    });
+                }
+            }
+        },
+        async updateBuyStatus() {
+            try {
+                const originalBuy = this.buys.find(b => b.id === this.currentBuy.id);
+                if (!originalBuy) {
+                    throw new Error('Compra no encontrada');
+                }
 
-    //             const buyData = {
-    //                 invoice_number: originalBuy.invoice_number,
-    //                 date: originalBuy.date,
-    //                 supplier_id: originalBuy.supplier.id,
-    //                 department_id: originalBuy.departament.id,
-    //                 status: this.currentBuy.status,
-    //                 buy_details: originalBuy.buy_details
-    //             };
+                const buyData = {
+                    invoice_number: originalBuy.invoice_number,
+                    date: originalBuy.date,
+                    supplier_id: originalBuy.supplier.id,
+                    department_id: originalBuy.departament.id,
+                    status: this.currentBuy.status,
+                    buy_details: originalBuy.buy_details
+                };
 
-    //             await axios.put(`${this.baseURL}/${this.currentBuy.id}`, buyData);
-    //             await this.loadBuys();
-    //             this.closeEditStatusModal();
+                await axios.put(`${this.baseURL}/${this.currentBuy.id}`, buyData);
+                await this.loadBuys();
+                this.closeEditStatusModal();
                 
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Actualizado',
-    //                 text: `El estado de la compra con N° de Orden ${originalBuy.invoice_number} ha sido actualizado con éxito`,
-    //                 timer: 1500
-    //             });
-    //         } catch (error) {
-    //             console.error('Error al actualizar:', error);
-    //             console.error('Respuesta del servidor:', error.response?.data);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Actualizado',
+                    text: `El estado de la compra con N° de Orden ${originalBuy.invoice_number} ha sido actualizado con éxito`,
+                    timer: 1500
+                });
+            } catch (error) {
+                console.error('Error al actualizar:', error);
+                console.error('Respuesta del servidor:', error.response?.data);
                 
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: error.response?.data?.message || 'Error al actualizar el estado de la compra'
-    //             });
-    //         }
-    //     },
-    //     getCurrentDate() {
-    //         const today = new Date();
-    //         const year = today.getFullYear();
-    //         const month = String(today.getMonth() + 1).padStart(2, '0');
-    //         const day = String(today.getDate()).padStart(2, '0');
-    //         return `${year}-${month}-${day}`;
-    //     },
-    //     calculateTotalAmount(buy) {
-    //         return buy.buy_details.reduce((total, detail) => {
-    //             return total + (parseFloat(detail.buy_price) * detail.quantity);
-    //         }, 0).toFixed(2);
-    //     },
-    //     formatDate(dateString) {
-    //         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    //         return new Date(dateString).toLocaleDateString(undefined, options);
-    //     },
-    //     statusClass(status) {
-    //         switch (status) {
-    //             case 'aprobada':
-    //                 return 'status aprobada';
-    //             case 'pendiente':
-    //                 return 'status pendiente';
-    //             case 'rechazada':
-    //                 return 'status rechazada';
-    //             default:
-    //                 return '';
-    //         }
-    //     }
-    // },
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Error al actualizar el estado de la compra'
+                });
+            }
+        },
+        getCurrentDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+        calculateTotalAmount(buy) {
+            return buy.buy_details.reduce((total, detail) => {
+                return total + (parseFloat(detail.buy_price) * detail.quantity);
+            }, 0).toFixed(2);
+        },
+        formatDate(dateString) {
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        },
+        statusClass(status) {
+            switch (status) {
+                case 'aprobada':
+                    return 'status aprobada';
+                case 'pendiente':
+                    return 'status pendiente';
+                case 'rechazada':
+                    return 'status rechazada';
+                default:
+                    return '';
+            }
+        }
+    },
 };
 </script>
 
@@ -501,5 +507,58 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 2px solid green;
     background-color: white;
     color: green;
+}
+
+.patient-table-wrapper {
+    padding: 20px;
+}
+
+.patient-table-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.patient-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.patient-table th,
+.patient-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.patient-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.patient-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.svg-btn {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
 }
 </style>

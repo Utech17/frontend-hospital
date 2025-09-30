@@ -59,15 +59,15 @@
           </a>
           <ul class="submenu" v-show="submenuStates.citas && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/dashboard/cita" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/citas" exact-active-class="active">
                 <span>Programar Citas</span>
               </router-link>
             </li>
-            <li>
+            <!-- <li>
               <router-link class="nav-link submenu-link" to="/dashboard/citas/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
-            </li>
+            </li> -->
           </ul>
         </li>
 
@@ -82,15 +82,15 @@
           </a>
           <ul class="submenu" v-show="submenuStates.emergencia && isOpen">
             <li>
-              <router-link class="nav-link submenu-link" to="/dashboard/emergencia/listado" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/emergencias" exact-active-class="active">
                 <span>Listado de Emergencias</span>
               </router-link>
             </li>
-            <li>
+            <!-- <li>
               <router-link class="nav-link submenu-link" to="/dashboard/emergencia/facturacion" exact-active-class="active">
                 <span>Facturación</span>
               </router-link>
-            </li>
+            </li> -->
           </ul>
         </li>
 

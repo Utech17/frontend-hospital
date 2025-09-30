@@ -1,127 +1,160 @@
 <template>
-  <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Buscar por nombre de medicamento"
-        v-model="searchQuery"
-      />
-      <button class="btn btn-primary add-product-btn" @click="showModal = true">
-        <span class="">Ingresar producto</span>
-      </button>
-    </div>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Estado</th>
-          <th>Nombre</th>
-          <th>Peso</th>
-          <th>Cantidad</th>
-          <th>Precio</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="med in filteredMedicines" :key="med.id">
-          <td>
-            <span :class="['status-oval', med.state === 'Disponible' ? 'available' : 'out-of-stock']">
-              {{ med.state }}
-            </span>
-          </td>
-          <td>{{ med.name }}</td>
-          <td>{{ med.weight }} kg</td>
-          <td>{{ med.stock }}</td>
-          <td>{{ formatCurrency(med.price) }}</td>
-          <td>
-            <div class="dropdown">
-              <button 
-                class="btn btn-link p-0"
-                type="button"
-                id="actionDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <span class="actions-icon">•••</span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown">
-                <li>
-                  <a 
-                    class="dropdown-item" 
-                    href="#" 
-                    @click.prevent="editItem(med)"
+  <div class="patient-table-wrapper">
+    <div class="patient-table-card">
+      <div class="grid-view">
+        <input
+          type="text"
+          class="form-control mb-3"
+          placeholder="Buscar por nombre de medicamento"
+          v-model="searchQuery"
+        />
+        <button
+          class="btn btn-primary icon-btn add-btn"
+          @click="showModal = true"
+          title="Ingresar producto"
+        >
+          <AddCircleSvg class="svg-btn" />
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="table patient-table">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Nombre</th>
+              <th>Peso</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="med in filteredMedicines" :key="med.id">
+              <td>
+                <span
+                  :class="['status-oval', med.state === 'Disponible' ? 'available' : 'out-of-stock']"
+                >
+                  {{ med.state }}
+                </span>
+              </td>
+              <td>{{ med.name }}</td>
+              <td>{{ med.weight }} kg</td>
+              <td>{{ med.stock }}</td>
+              <td>{{ formatCurrency(med.price) }}</td>
+              <td>
+                <div class="action-btn-group">
+                  <button
+                    class="btn btn-success btn-sm icon-btn"
+                    @click="editItem(med)"
+                    title="Editar medicamento"
                   >
-                    <i class="bi bi-pencil me-2"></i>
-                    Editar
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    class="dropdown-item text-danger" 
-                    href="#" 
-                    @click.prevent="deleteItem(med)"
+                    <EditSvg class="svg-btn" />
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm icon-btn"
+                    @click="deleteItem(med)"
+                    title="Eliminar medicamento"
                   >
-                    <i class="bi bi-trash me-2"></i>
-                    Eliminar
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Agregar Producto</h5>
+                    <DeleteSvg class="svg-btn" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar Producto</h5>
             <button
-    type="button"
-    class="close close-btn"
-    @click="showModal = false"
-  >
-    &times;
-  </button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Nombre</label>
-                <input type="text" class="form-control" placeholder="Nombre" v-model="newProduct.name" />
+              type="button"
+              class="close close-btn"
+              @click="showModal = false"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Nombre</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nombre"
+                    v-model="newProduct.name"
+                  />
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Descripción</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Descripción"
+                    v-model="newProduct.description"
+                  />
+                </div>
               </div>
-              <div class="form-group col-md-6">
-                <label>Descripción</label>
-                <input type="text" class="form-control" placeholder="Descripción" v-model="newProduct.description" />
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Cantidad</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Cantidad"
+                    v-model="newProduct.quantity"
+                  />
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Peso</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Peso"
+                    v-model="newProduct.weight"
+                  />
+                </div>
               </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Cantidad</label>
-                <input type="number" class="form-control" placeholder="Cantidad" v-model="newProduct.quantity" />
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Ubicación</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Ubicación"
+                    v-model="newProduct.location"
+                  />
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Precio</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Precio"
+                    v-model="newProduct.price"
+                  />
+                </div>
               </div>
-              <div class="form-group col-md-6">
-                <label>Peso</label>
-                <input type="text" class="form-control" placeholder="Peso" v-model="newProduct.weight" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Ubicación</label>
-                <input type="text" class="form-control" placeholder="Ubicación" v-model="newProduct.location" />
-              </div>
-              <div class="form-group col-md-6">
-                <label>Precio</label>
-                <input type="text" class="form-control" placeholder="Precio" v-model="newProduct.price" />
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="showModal = false">Cancelar</button>
-          <button type="button" class="btn btn-primary" @click="saveProduct">Guardar</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="showModal = false"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveProduct"
+            >
+              Guardar
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -129,6 +162,10 @@
 </template>
 
 <script>
+import EditSvg from '~/components/svg/edit.vue';
+import DeleteSvg from '~/components/svg/delete.vue';
+import AddCircleSvg from '~/components/svg/add-circle.vue';
+
 export default {
   name: 'DataGridMedicine',
   data() {
@@ -170,7 +207,9 @@ export default {
   },
   computed: {
     filteredMedicines() {
-      return this.medicines.filter((med) => med.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+      return this.medicines.filter((med) =>
+        med.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     },
   },
   methods: {
@@ -181,7 +220,9 @@ export default {
       alert(`Editar medicamento con ID: ${item.id}`);
     },
     deleteItem(item) {
-      const confirmDelete = confirm(`¿Estás seguro de eliminar el medicamento con ID: ${item.id}?`);
+      const confirmDelete = confirm(
+        `¿Estás seguro de eliminar el medicamento con ID: ${item.id}?`
+      );
       if (confirmDelete) {
         this.medicines = this.medicines.filter((med) => med.id !== item.id);
       }
@@ -219,39 +260,85 @@ export default {
 </script>
 
 <style scoped>
-.table {
+.patient-table-wrapper {
+  margin-top: 30px;
+}
+
+.patient-table-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.grid-view {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-control {
+  border-radius: 20px;
+  padding: 10px 20px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.add-btn {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.add-btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.table-responsive {
   margin-top: 20px;
 }
-.add-product-btn {
-  display: inline-block; /* Asegura que sea un botón compacto */
-  white-space: nowrap; /* Mantiene el texto en una sola línea */
-  text-align: center; /* Centra el texto en el botón */
-  padding: 10px 20px; /* Ajusta los márgenes */
-  border-radius: 10px; /* Redondeo de esquinas */
-  font-size: 14px; /* Tamaño de letra */
-  font-weight: bold; /* Resalta el texto */
-  background-color: #007bff; /* Color azul (puedes ajustarlo si necesitas) */
-  color: #fff;
+
+.patient-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.add-product-btn:hover {
-  background-color: #0056b3; /* Azul más oscuro al pasar el cursor */
-  cursor: pointer;
-}
-.close-btn {
-  color: red;
-  font-size: 24px; /* Aumenta el tamaño de la fuente */
-  background: none;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
+.patient-table th,
+.patient-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.close-btn:hover {
-  color: darkred; /* Color más oscuro al pasar el mouse */
+.patient-table th {
+  background-color: #f8f9fa;
+  font-weight: 500;
 }
+
+.patient-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.action-btn-group {
+  display: flex;
+  gap: 5px;
+}
+
 .status-oval {
   display: inline-block;
   padding: 5px 15px;

@@ -3,7 +3,7 @@
     <SideMenu ref="sideMenu" @menu-toggled="updateSideMenuWidth"/>
     <div class="content flex-grow-1" :style="{ marginLeft: sideMenuWidth }">
       <NavBar :title="pageTitle" :sideMenuWidth="sideMenuWidth" @toggle-menu="toggleSideMenu"/>
-      <main class="main-content">
+      <main class="container mx-auto max-w-7xl px-6 py-10 flex-grow">
         <NuxtPage />
       </main>
     </div>

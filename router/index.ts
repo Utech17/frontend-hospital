@@ -9,19 +9,19 @@ const clientesView = () => import(/* webpackChunkName: "clientes" */ '@/pages/da
 const Login = () => import(/* webpackChunkName: "homeScreen" */ '@/pages/login/index.vue')
 const HomeView = () => import(/* webpackChunkName: "home" */ '@/pages/dashboard/index.vue')
 const ReportsView = () => import(/* webpackChunkName: "reports" */ '@/pages/dashboard/finanzas/Reportes.vue')
+const Productos = () => import(/* webpackChunkName: "store-products" */ '@/pages/dashboard/almacen/productos/index.vue')
+const Emergencia = () => import(/* webpackChunkName: "emergency" */ '@/pages/dashboard/emergencia/index.vue')
+const EmergenciaFacturacion = () => import(/* webpackChunkName: "billing-emergencies" */ '../pages/dashboard/emergencia/facturacion.vue')
+const Citas = () => import(/* webpackChunkName: "appointments" */ '../pages/dashboard/citas/index.vue')
+const CitasFacturacion = () => import(/* webpackChunkName: "billing-appointments" */ '../pages/dashboard/citas/facturacion.vue')
 
 const PharmacyInventoryView = () => import(/* webpackChunkName: "pharmacy-inventory" */ '../pages/dashboard/pharmacy/PharmacyInventoryView.vue')
 const BillingView = () => import(/* webpackChunkName: "pharmacy-billing" */ '../pages/dashboard/pharmacy/BillingView.vue')
 const SalesListView = () => import(/* webpackChunkName: "sales" */ '../pages/dashboard/Sales/SaleslistView.vue')
 const BuyListView = () => import(/* webpackChunkName: "buy" */ '../pages/dashboard/finanzas/compras/SolicitarCompra.vue')
 const BuyListViewRequest = () => import(/* webpackChunkName: "buy-request" */ '../pages/dashboard/finanzas/Compras/SolicitudesCompras.vue')
-const AppointmentsListView = () => import(/* webpackChunkName: "appointments" */ '../pages/dashboard/appointments/appointmentsListView.vue')
-const BillingAppointmentsListView = () => import(/* webpackChunkName: "billing-appointments" */ '../pages/dashboard/BillingAppointments/BillingAppointmentsListView.vue')
-const BillingEmergenciesListView = () => import(/* webpackChunkName: "billing-emergencies" */ '../pages/dashboard/BillingEmergencies/BillingEmergenciesListView.vue')
 const BillingLaboratoriesListView = () => import(/* webpackChunkName: "billing-laboratories" */ '../pages/dashboard/BillingLaboratories/BillingLaboratoriesListView.vue')
-const EmergencyListView = () => import(/* webpackChunkName: "emergency" */ '@/pages/dashboard/emergency/EmergencyListView.vue')
 const FinanceView = () => import(/* webpackChunkName: "finance" */ '~/pages/dashboard/finanzas/Finanzas.vue')
-const StoreProductsListView = () => import(/* webpackChunkName: "store-products" */ '@/pages/dashboard/storeProducts/StoreProductsListView.vue')
 const SaleslistView = () => import(/* webpackChunkName: "sales" */ '@/pages/dashboard/Sales/SaleslistView.vue')
 
 const routes: Array<RouteRecordRaw> = [
@@ -73,17 +73,42 @@ const routes: Array<RouteRecordRaw> = [
     component: SalesListView,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/dashboard/finanzas/resumen',
+    component: FinanceView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard/almacen/productos',
+    component: Productos,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard/emergencias',
+    component: Emergencia,
+    meta: { requiresAuth: true }
+  },
+  // {
+  //   path: '/dashboard/emergencia/facturacion',
+  //   component: EmergenciaFacturacion,
+  //   meta: { requiresAuth: true }
+  // },
+  {
+    path: '/dashboard/citas',
+    component: Citas,
+    meta: { requiresAuth: true }
+  },
+  // {
+  //   path: '/dashboard/citas/facturacion',
+  //   component: CitasFacturacion,
+  //   meta: { requiresAuth: true }
+  // },
 
 
 
   {
     path: '/dashboard/laboratorio/facturacion',
     component: BillingLaboratoriesListView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/citas/facturacion',
-    component: BillingAppointmentsListView,
     meta: { requiresAuth: true }
   },
   {
@@ -94,32 +119,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard/farmacia/facturacion',
     component: BillingView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/emergencia/listado',
-    component: EmergencyListView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/emergencia/facturacion',
-    component: BillingEmergenciesListView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/almacen/productos',
-    component: StoreProductsListView,
-    meta: { requiresAuth: true }
-  },
- 
-  {
-    path: '/dashboard/cita',
-    component: AppointmentsListView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/finanzas/resumen',
-    component: FinanceView,
     meta: { requiresAuth: true }
   },
   {

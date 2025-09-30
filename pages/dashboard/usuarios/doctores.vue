@@ -1,12 +1,12 @@
 <template>
     <div class="doctorview">
-        <AddDoctor />
+        <Doctor />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import AddDoctor from '@/components/utils/user/doctors/AddDoctor.vue';
+import Doctor from '@/components/utils/user/doctors/DataGridDoctor.vue';
 
 definePageMeta({
   title: 'Usuarios -> Doctores'
@@ -14,7 +14,7 @@ definePageMeta({
 
 export default defineComponent({
     name: 'DoctorView',
-    components: { AddDoctor }
+    components: { Doctor }
 });
 </script>
 

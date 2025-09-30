@@ -8,6 +8,10 @@
 import { defineComponent } from 'vue';
 import DataGridAppointments from '@/components/utils/appointments/DataGridAppointments.vue';
 
+definePageMeta({
+  title: 'Citas'
+})
+
 export default defineComponent({
   name: 'AppointmentsListView',
   components: { DataGridAppointments }

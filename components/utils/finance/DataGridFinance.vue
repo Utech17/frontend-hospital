@@ -1,77 +1,90 @@
 <template>
-  <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <input type="text" class="form-control" placeholder="Buscar por descripción" v-model="searchQuery" />
-      <button class="btn btn-primary add-transaction-btn" @click="showModal = true">
-        <span>Agregar Transacción</span>
-      </button>
-    </div>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Categoría</th>
-          <th>Cuentas</th>
-          <th>Descripción</th>
-          <th>Monto</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="transaction in filteredTransactions" :key="transaction.id">
-          <td>{{ formatDate(transaction.date) }}</td>
-          <td>{{ transaction.category }}</td>
-          <td>{{ transaction.accounts }}</td>
-          <td>{{ transaction.description }}</td>
-          <td>{{ formatCurrency(transaction.amount) }}</td>
-          <td>
-            <button class="btn btn-primary btn-sm mr-2" @click="editTransaction(transaction)">Editar</button>
-            <button class="btn btn-danger btn-sm" @click="deleteTransaction(transaction.id)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ isEditing ? 'Editar Transacción' : 'Agregar Transacción' }}</h5>
-          <button type="button" class="close close-btn" @click="closeModal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" class="form-control" v-model="newTransaction.date" />
+  <div class="patient-table-wrapper">
+    <div class="patient-table-card">
+      <div class="grid-view">
+        <input type="text" class="form-control mb-3" placeholder="Buscar por descripción" v-model="searchQuery" />
+        <button class="btn btn-primary icon-btn add-btn" @click="showModal = true" title="Agregar Transacción">
+          <AddCircleSvg class="svg-btn" />
+        </button>
+      </div>
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">{{ isEditing ? 'Editar' : 'Agregar' }} Transacción</h2>
+          <form @submit.prevent="saveTransaction">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fecha</label>
+                <input type="date" class="form-control" v-model="newTransaction.date" />
+              </div>
+              <div class="form-group">
+                <label>Categoría</label>
+                <input type="text" class="form-control" v-model="newTransaction.category" />
+              </div>
             </div>
-            <div class="form-group">
-              <label>Categoría</label>
-              <input type="text" class="form-control" v-model="newTransaction.category" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Cuentas</label>
+                <input type="text" class="form-control" v-model="newTransaction.accounts" />
+              </div>
+              <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" class="form-control" v-model="newTransaction.description" />
+              </div>
             </div>
-            <div class="form-group">
-              <label>Cuentas</label>
-              <input type="text" class="form-control" v-model="newTransaction.accounts" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Monto</label>
+                <input type="number" class="form-control" v-model="newTransaction.amount" />
+              </div>
             </div>
-            <div class="form-group">
-              <label>Descripción</label>
-              <input type="text" class="form-control" v-model="newTransaction.description" />
-            </div>
-            <div class="form-group">
-              <label>Monto</label>
-              <input type="number" class="form-control" v-model="newTransaction.amount" />
+            <div class="form-group button-group">
+              <button type="button" @click="closeModal" class="btn btn-secondary btn-lg">Cancelar</button>
+              <button type="submit" class="btn btn-primary btn-lg">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
             </div>
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancelar</button>
-          <button type="button" class="btn btn-primary" @click="saveTransaction">Guardar</button>
-        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table patient-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th>Cuentas</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="transaction in filteredTransactions" :key="transaction.id">
+              <td>{{ formatDate(transaction.date) }}</td>
+              <td>{{ transaction.category }}</td>
+              <td>{{ transaction.accounts }}</td>
+              <td>{{ transaction.description }}</td>
+              <td>{{ formatCurrency(transaction.amount) }}</td>
+              <td>
+                <div class="action-btn-group">
+                  <button class="btn btn-success btn-sm icon-btn" @click="editTransaction(transaction)" title="Editar transacción">
+                    <EditSvg class="svg-btn" />
+                  </button>
+                  <button class="btn btn-danger btn-sm icon-btn" @click="deleteTransaction(transaction.id)" title="Eliminar transacción">
+                    <DeleteSvg class="svg-btn" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import EditSvg from '~/components/svg/edit.vue';
+import DeleteSvg from '~/components/svg/delete.vue';
+import AddCircleSvg from '~/components/svg/add-circle.vue';
 import { v4 as uuidv4 } from 'uuid'; 
 
 export default {
@@ -156,27 +169,45 @@ export default {
 </script>
 
 <style scoped>
-.table {
+.patient-table-wrapper {
   margin-top: 20px;
 }
 
-.btn-sm {
-  margin-right: 10px;
-}
-
-.add-transaction-btn {
-  display: inline-block;
-  white-space: nowrap;
-  text-align: center;
-  padding: 10px 20px;
+.patient-table-card {
+  background: #fff;
   border-radius: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  background-color: #007bff;
-  color: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.add-transaction-btn:hover {
+.grid-view {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-control {
+  border-radius: 5px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.add-btn {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+}
+
+.add-btn:hover {
   background-color: #0056b3;
   cursor: pointer;
 }
@@ -202,30 +233,62 @@ export default {
   max-width: 90%;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.modal-title {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 500;
 }
 
-.modal-footer {
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.button-group {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
-.close-btn {
-  color: red;
-  font-size: 24px;
-  background: none;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
+.btn-lg {
+  padding: 10px 20px;
+  font-size: 16px;
 }
 
-.close-btn:hover {
-  color: darkred;
+.table-responsive {
+  margin-top: 20px;
+}
+
+.patient-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patient-table th,
+.patient-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.patient-table th {
+  background-color: #f8f9fa;
+  font-weight: 500;
+}
+
+.action-btn-group {
+  display: flex;
+  gap: 5px;
+}
+
+.svg-btn {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 </style>
