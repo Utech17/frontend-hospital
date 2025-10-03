@@ -14,15 +14,15 @@ const Emergencia = () => import(/* webpackChunkName: "emergency" */ '@/pages/das
 const EmergenciaFacturacion = () => import(/* webpackChunkName: "billing-emergencies" */ '../pages/dashboard/emergencia/facturacion.vue')
 const Citas = () => import(/* webpackChunkName: "appointments" */ '../pages/dashboard/citas/index.vue')
 const CitasFacturacion = () => import(/* webpackChunkName: "billing-appointments" */ '../pages/dashboard/citas/facturacion.vue')
+const Farmacia = () => import(/* webpackChunkName: "farmacia-inventory" */ '../pages/dashboard/farmacia/inventario.vue')
+const FarmaciaFacturacion = () => import(/* webpackChunkName: "farmacia-billing" */ '../pages/dashboard/farmacia/facturacion.vue')
 
-const PharmacyInventoryView = () => import(/* webpackChunkName: "pharmacy-inventory" */ '../pages/dashboard/pharmacy/PharmacyInventoryView.vue')
-const BillingView = () => import(/* webpackChunkName: "pharmacy-billing" */ '../pages/dashboard/pharmacy/BillingView.vue')
 const SalesListView = () => import(/* webpackChunkName: "sales" */ '../pages/dashboard/Sales/SaleslistView.vue')
 const BuyListView = () => import(/* webpackChunkName: "buy" */ '../pages/dashboard/finanzas/compras/SolicitarCompra.vue')
 const BuyListViewRequest = () => import(/* webpackChunkName: "buy-request" */ '../pages/dashboard/finanzas/Compras/SolicitudesCompras.vue')
-const BillingLaboratoriesListView = () => import(/* webpackChunkName: "billing-laboratories" */ '../pages/dashboard/BillingLaboratories/BillingLaboratoriesListView.vue')
+const BillingLaboratoriesListView = () => import(/* webpackChunkName: "billing-laboratories" */ '../pages/dashboard/laboratorio/BillingLaboratoriesListView.vue')
 const FinanceView = () => import(/* webpackChunkName: "finance" */ '~/pages/dashboard/finanzas/Finanzas.vue')
-const SaleslistView = () => import(/* webpackChunkName: "sales" */ '@/pages/dashboard/Sales/SaleslistView.vue')
+const SaleslistView = () => import(/* webpackChunkName: "sales" */ '@/pages/dashboard/ventas/index.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,76 +32,69 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard',
     component: HomeView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/usuarios/pacientes',
     component: pacientesView,
-    meta: { requiresAuth: true}
   },
   {
     path: '/dashboard/usuarios/doctores',
     component: doctoresView,
-    meta: { requiresAuth: true}
   },
   {
     path: '/dashboard/usuarios/proveedores',
     component: proveedoresView,
-    meta: { requiresAuth: true}
   },{
     path: '/dashboard/usuarios/clientes',
     component: clientesView,
-    meta: { requiresAuth: true}
   },
   {
     path: '/dashboard/finanzas/reportes',
     component: ReportsView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/finanzas/compras/SolicitarCompra',
     component: BuyListView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/finanzas/compras/SolicitudesCompras',
     component: BuyListViewRequest,
-    meta: { requiresAuth: true }
   },
   {
-    path: '/dashboard//finanzas/ventas',
+    path: '/dashboard/finanzas/ventas',
     component: SalesListView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/finanzas/resumen',
     component: FinanceView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/almacen/productos',
     component: Productos,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/emergencias',
     component: Emergencia,
-    meta: { requiresAuth: true }
   },
   // {
   //   path: '/dashboard/emergencia/facturacion',
   //   component: EmergenciaFacturacion,
-  //   meta: { requiresAuth: true }
   // },
   {
     path: '/dashboard/citas',
     component: Citas,
-    meta: { requiresAuth: true }
   },
   // {
   //   path: '/dashboard/citas/facturacion',
   //   component: CitasFacturacion,
-  //   meta: { requiresAuth: true }
+  // },
+  {
+    path: '/dashboard/farmacia/inventario',
+    component: Farmacia,
+  },
+  // {
+  //   path: '/dashboard/farmacia/facturacion',
+  //   component: FarmaciaFacturacion,
   // },
 
 
@@ -109,22 +102,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard/laboratorio/facturacion',
     component: BillingLaboratoriesListView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/farmacia/inventario',
-    component: PharmacyInventoryView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard/farmacia/facturacion',
-    component: BillingView,
-    meta: { requiresAuth: true }
   },
   {
     path: '/dashboard/sales',
     component: SaleslistView,
-    meta: { requiresAuth: true }
   },
 ]
 
@@ -132,18 +113,5 @@ const router = createRouter({
   history: createWebHistory(API),
   routes
 })
-
-router.beforeEach((to, from, next) => {
-  console.log('user_id en guard:', sessionStorage.getItem('user_id'));
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthenticated = !!sessionStorage.getItem('user_id')
-
-  if (requiresAuth && !isAuthenticated) {
-    next({ path: '/login', query: { redirect: to.fullPath } })
-  } else {
-    next()
-  }
-});
-
 
 export default router

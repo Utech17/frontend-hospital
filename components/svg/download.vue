@@ -1,0 +1,4 @@
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><!-- Icon from Icons8 Windows 10 Icons by Icons8 - undefined -->
+  <path fill="currentColor" d="M15 4v16.563L9.72 15.28l-1.44 1.44l7 7l.72.686l.72-.687l7-7l-1.44-1.44L17 20.564V4zM7 27v2h18v-2z" /></svg>
+</template>

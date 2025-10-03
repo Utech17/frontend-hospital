@@ -1,27 +1,24 @@
 <template>
   <div class="PharmacyInventory">
-    <Default page-title="Listado de Medicamentos > Inventario">
-      <DataGridMedicine />
-      <!-- Este es el componente hijo que se pasará al slot -->
-    </Default>
-    <!-- Usa Default como estructura principal -->
+    <DataGridMedicine />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Default from '~/layouts/default.vue';
-import DataGridMedicine from '@/components/utils/pharmacy/DataGridMedicine.vue'; // Asegúrate de crear y registrar este componente
+import DataGridMedicine from '@/components/utils/pharmacy/DataGridMedicine.vue';
+
+definePageMeta({
+title: 'Farmacia -> Inventario'
+})
 
 export default defineComponent({
   name: 'PharmacyInventoryView',
-  components: { Default, DataGridMedicine },
+  components: {  DataGridMedicine },
 });
 </script>
 
 <style scoped>
-/* ... otros estilos ... */
-
 .dropdown-menu {
   min-width: 160px;
   padding: 0.5rem 0;

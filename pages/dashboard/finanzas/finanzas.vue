@@ -8,7 +8,9 @@
 import { defineComponent } from 'vue';
 import DataGridFinance from '@/components/utils/finance/DataGridFinance.vue';
 
-
+definePageMeta({
+  title: 'Finanzas'
+})
 
 export default defineComponent({
   name: 'FinanceView',

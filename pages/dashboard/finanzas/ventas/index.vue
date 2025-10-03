@@ -15,6 +15,10 @@
 import { defineComponent } from 'vue';
 import DataGridSales from '@/components/utils/Sales/DataGridSales.vue';
 
+definePageMeta({
+  title: 'Finanzas -> Ventas'
+})
+
 export default defineComponent({
     name: 'SalesListView',
     components: {

@@ -8,6 +8,11 @@
 import { defineComponent } from 'vue';
 import DataGridBillingLaboratories from '@/components/utils/BillingLaboratories/DataGridBillingLaboratories.vue';
 
+definePageMeta({
+  title: 'Laboratorio -> Facturación',
+  //requiresAuth: true
+})
+
 export default defineComponent({
     name: 'BillingLaboratoriesListView',
     components: { DataGridBillingLaboratories }

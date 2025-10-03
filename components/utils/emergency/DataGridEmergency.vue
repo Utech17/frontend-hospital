@@ -187,7 +187,7 @@
                     @click="openMiniModal(emergency)"
                     title="Ver detalles"
                   >
-                    <span style="font-size:18px;">👁️</span>
+                    <svg-eye />
                   </button>
                   <button
                     class="btn btn-success btn-sm icon-btn"
@@ -267,7 +267,7 @@ export default {
       showMiniModal: false,
       miniModalData: null,
       currentPage: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 7,
     };
   },
   async mounted() {

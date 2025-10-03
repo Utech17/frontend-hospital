@@ -1,22 +1,22 @@
 <template>
   <div class="StoreList">
-    <Default page-title="Almacén > Productos">
-      <DataGridStore /> <!-- Este es el componente hijo que se pasará al slot -->
-    </Default> <!-- Asegúrate de que este componente esté en el template -->
+    <DataGridStore /> 
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Default from '~/layouts/default.vue';
 import DataGridStore from '@/components/utils/products/DataGridStore.vue';
+
+definePageMeta({
+title: 'Almacen -> Productos'
+})
 
 export default defineComponent({
   name: 'StoreProductsListView',
-  components: { Default, DataGridStore },
+  components: { DataGridStore },
 });
 </script>
 
 <style scoped>
-
 </style>

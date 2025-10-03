@@ -9,7 +9,8 @@ import { defineComponent } from 'vue';
 import DataGridClient from '@/components/utils/user/client/DataGridClient.vue';
 
 definePageMeta({
-  title: 'Usuarios -> Clientes'
+  title: 'Usuarios -> Clientes',
+  //requiresAuth: true
 })
 
 export default defineComponent({

@@ -117,7 +117,7 @@
           </ul>
         </li>
 
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link d-flex align-items-center" href="#" @click.prevent="toggleSubmenu('laboratorio')"
             :class="{ 'active': isInLaboratorioSection }">
             <img src="/iconos/tubo-de-analisis-de-sangre-alt.svg" alt="Laboratorio" width="17" height="17"
@@ -139,7 +139,7 @@
               </router-link>
             </li>
           </ul>
-        </li>
+        </li> -->
 
         <li class="nav-item">
           <a class="nav-link d-flex align-items-center" href="#" @click.prevent="toggleSubmenu('almacen')"
@@ -176,7 +176,7 @@
               </router-link>
             </li>
             <li>
-              <router-link class="nav-link submenu-link" to="/dashboard/finanzas/ventas/ventas" exact-active-class="active">
+              <router-link class="nav-link submenu-link" to="/dashboard/finanzas/ventas/" exact-active-class="active">
                 <span>Ventas</span>
               </router-link>
             </li>
